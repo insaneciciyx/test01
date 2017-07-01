@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>动态加载</title>
+    <link rel="stylesheet" href="../css/reset.css">
+    <style>
+        .product{
+            width: 50%;
+            height:300px;
+            border:1px solid #dfdfdf;
+            box-sizing: border-box;
+            padding: 10px;
+            float: left;
+            overflow: hidden;
+        }
+        p{
+            font-size:14px;
+        }
+        .product p:nth-of-type(1){
+            text-align: center;
+        }
+        .product p:nth-of-type(1) img{
+            width: 150px;
+            height: 150px;
+        }
+        .product p:nth-of-type(2){
+            font-weight:800;
+        }
+        .product p:nth-of-type(3){
+            color:orange;
+        }
+        .product p:nth-of-type(4){
+            color:#ccc;
+        }
+        .clearfix:after{display: block;height:100%;_height:100%;clear:both;content:'';}
+        .clearfix{zoom:1;}
+    </style>
+</head>
+<div class="prolist clearfix">
+    <!--<div class="product">
+        <p><img src="" alt=""></p>
+        <p>标题</p>
+        <p>价格</p>
+        <p>商城</p>
+    </div>-->
+</div>
+<body>
+<script src="../lib/jquery.js"></script>
+<script>
+    //设置变量
+    var winHeight = 0;
+    var domHeight = 0;
+    var totalLength = 0;
+    var len = 8;//我们设置的变量
+    var prolist = $('.prolist');//获取商品列表容量框
+    //获取数据
+    $.get("http://127.0.0.1:3000/api/getinlanddiscount", function(data){
+        console.log(data);
+        totalLength = data.result.length;//所有商品
+        //动态添加到我们的页面
+        var div = '';
+        for(var i=0;i<len;i++){
+            div += '<div class="product">'+
+                '<p>'+data.result[i].productImg+'</p>'+
+                '<p>'+data.result[i].productName+'</p>'+
+                '<p>'+data.result[i].productPrice+'</p>'+
+            '<p>'+data.result[i].productFrom+'</p>'+
+            '</div>';
+        }
+        prolist.append(div);
+    });
+    //获取元素
+    //设置触发事件,当鼠标滚动就触发事件
+    $(window).scroll( function() {
+        //当鼠标滚到底部的时候，加载新的数据
+        //解决方案：计算出鼠标到底部，加载数据
+        winHeight = $(window).height();
+        domHeight = $('.prolist').height();
+        if($(window).scrollTop()==domHeight-winHeight){
+            //到底部添加数据
+            addProduct();
+        }
+    } );
+
+    //添加数据
+    function addProduct(){
+        $.get("http://127.0.0.1:3000/api/getinlanddiscount", function(data){
+            totalLength = data.result.length;//所有商品
+            //动态添加到我们的页面
+            var div = '';
+            //从len开始，到len+4结束的四个数据
+            for(var i=len;i<len+4;i++){
+                div += '<div class="product">'+
+                    '<p>'+data.result[i].productImg+'</p>'+
+                    '<p>'+data.result[i].productName+'</p>'+
+                    '<p>'+data.result[i].productPrice+'</p>'+
+                    '<p>'+data.result[i].productFrom+'</p>'+
+                    '</div>';
+            }
+            prolist.append(div);
+            len+=4;
+        });
+    }
+</script>
+</body>
+</html>
